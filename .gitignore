@@ -135,3 +135,4 @@ bot_token.py
 
 # Pyre type checker
 .pyre/
+bot_token.py
