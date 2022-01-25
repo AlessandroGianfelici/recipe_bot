@@ -1,6 +1,6 @@
 import time
 import telepot
-import os, sys
+import os, sys, re
 from bot_token import bot_token
 from app_ricette.source.constants import APP_PATH
 
@@ -13,19 +13,25 @@ bot = telepot.Bot(bot_token)
 
 def handle(msg):
     chat_id = msg['chat']['id']
-    print(msg)
     if msg['text'] == '/start':
-        bot.sendMessage(chat_id, f"Give me the list of the ingredients you have, separated by comma!")
-    elif 'text' in msg.keys():
-        ingredients = msg['text']
-        ingredient_list = list(map(preprocess_query, 
-                                   ingredients.split(",")))
-        suggestions = recommend_recipes(ingredient_list, max_results=1)
-        name = suggestions['name'][0]
-        url = suggestions['url'][0]
-        bot.sendMessage(chat_id, f"What about {name}? Take a look at the recipe:")
-        bot.sendMessage(chat_id, url)
-        return 
+        bot.sendMessage(chat_id, f"Scrimi la lista degli ingredienti che vuoi usare, separati da virgola!")
+    if 'text' in msg.keys():
+        try:
+            ingredients = msg['text']
+            if re.sub(r'[^a-zA-Z]', ' ', ingredients.lower().strip()) == 'ciao':
+                bot.sendMessage(chat_id, f"Ciao a te! Scrimi la lista degli ingredienti che vuoi usare, separati da virgola!")
+                return
+            suggestions = recommend_recipes(list(map(preprocess_query, ingredients.lower()\
+                                  .replace("peperone", 'peperoni')\
+                                  .replace("peperoni", 'peperone, peperoni').split(","))), max_results=1)
+            url = suggestions['url'][0]
+            bot.sendMessage(chat_id, f"Cosa ne pensi di questa?")
+            bot.sendMessage(chat_id, url)
+            print(dir(bot))
+            return 
+        except Exception as e:
+            print(f"{e}: {e.__doc__}")
+            bot.sendMessage(chat_id, f"Non ho capito! Scrimi la lista degli ingredienti che vuoi usare, separati da virgola!")
     return None
 
 bot.message_loop(handle)
