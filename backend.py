@@ -27,7 +27,6 @@ def handle(msg):
             url = suggestions['url'][0]
             bot.sendMessage(chat_id, f"Cosa ne pensi di questa?")
             bot.sendMessage(chat_id, url)
-            print(dir(bot))
             return 
         except Exception as e:
             print(f"{e}: {e.__doc__}")
